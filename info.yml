@@ -1,0 +1,39 @@
+# Copyright (c) 2013 Shotgun Software Inc.
+# 
+# CONFIDENTIAL AND PROPRIETARY
+# 
+# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit 
+# Source Code License included in this distribution package. See LICENSE.
+# By accessing, using, copying or modifying this work you indicate your 
+# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
+# not expressly granted therein are reserved by Shotgun Software Inc.
+
+# Metadata defining the behaviour and requirements for this app
+
+# expected fields in the configuration file for this app
+configuration:
+    maya_fps_list:
+        type : dict
+        description: Dictionary of maya frame rate names and it's associated frame rate expressed as a float.
+                    Allows to convert between maya fps settings and the value in the shotgun project sg_projectfps field.
+        default_value: {pal: 25.0,ntsc: 30.0, film: 24.0, ntscf: 60.0, 23.976fps: 23.976, 29.97fps: 29.97}
+
+
+# the Shotgun fields that this app needs in order to operate correctly
+requires_shotgun_fields:
+
+# More verbose description of this item 
+display_name: "Maya Frame Rate Check"
+description: "Maya Frame Rate Check"
+
+# Required minimum versions for this item to run
+requires_shotgun_version:
+requires_core_version: "v0.14.34"
+requires_engine_version: "v0.5.5"
+
+# the engines that this app can operate in:
+supported_engines: [tk-maya]
+
+# the frameworks required to run this app
+frameworks:
+    
