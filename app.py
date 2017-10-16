@@ -25,7 +25,7 @@ class mayaFpsCheck(Application):
 
         self.FpsSceneOpened() # run the method when the app is started
         self.job = cmds.scriptJob( event=["SceneOpened", self.FpsSceneOpened], protected=True ) # will run if a scene (new or not) is opened
-        self.log_debug("Creating protected scriptJobs %s " % self.job)
+        self.log_debug("Creating protected scriptJob %s " % self.job)
 
 
     @property
@@ -57,6 +57,11 @@ class mayaFpsCheck(Application):
 
         mayaSceneFpsName = self.getMayaSceneFps()
         mayaSceneFps = self.convertMayaFpsToShotgunFps(mayaSceneFpsName)
+        if mayaSceneFps is None:
+            warning = "Maya scene frame rate is: '%s'. Could not translate this to a fps value.\nPlease adapt the app configuration in shotgun's env files" % mayaSceneFpsName
+            warnDialog = cmds.confirmDialog(title='Frame Rate Warning', message=warning, button=['ok'])
+            self.log_debug("Maya scene frame rate is: '%s'. Could not translate this to a fps value. Please adapt the app configuration in shotgun's env files" % mayaSceneFpsName)
+            return
         shotgunProjectFps = self.getShotgunProjectFps()
         undefinedShotgunProjectFps = False
 
@@ -64,14 +69,21 @@ class mayaFpsCheck(Application):
             undefinedShotgunProjectFps = True
             shotgunProjectFps = 25.0 # force it to 25
             self.log_debug("FpsSceneOpened : Shotgun project fps is not defined, assuming it should be 25.0")
-        newfps = self.convertShotgunFpsToMayaFps(shotgunProjectFps)
+            
+        newMayaFps = self.convertShotgunFpsToMayaFps(shotgunProjectFps)
+        if newMayaFps is None:
+            self.log_debug('Shotgun project is set to %s fps. Could not find the corresponding Maya frame rate' % shotgunProjectFps )
+            warning = "Shotgun project is set to %s fps. Could not find the corresponding Maya frame rate.\nPlease adapt the app configuration in shotgun's env files" % shotgunProjectFps
+            warnDialog = cmds.confirmDialog(title='Frame Rate Warning', message=warning, button=['ok'])
+            return
 
         defaultNodes = ['lambert1', 'particleCloud1', 'persp', 'perspShape', 'top', 'topShape', 'front', 'frontShape', 'side', 'sideShape']
         sceneNodes = cmds.ls(materials = True, dag = True)
 
         if sceneNodes == defaultNodes: # in this case, we are dealing with a new scene (not a perfect solution, but I don't see another way to check)
-            cmds.currentUnit( time=newfps, updateAnimation=False )
-            self.log_debug("New Maya scene fps was %s, changing it silently to %s fps" % (mayaSceneFpsName, shotgunProjectFps))
+            if mayaSceneFps != shotgunProjectFps:
+                cmds.currentUnit( time=newMayaFps, updateAnimation=False )
+                self.log_debug("New Maya scene fps was: '%s', changing it silently to %s fps to match this shotgun project's fps value" % (mayaSceneFpsName, shotgunProjectFps))
 
         else: # it's not an new empty scene
             if mayaSceneFps != shotgunProjectFps:
@@ -86,33 +98,29 @@ class mayaFpsCheck(Application):
                 userResponse = cmds.confirmDialog(title='Frame Rate Warning', message=msg, button=[change, cancel], defaultButton=change, cancelButton=cancel)
                 
                 if userResponse == change:
-                    cmds.currentUnit( time=newfps, updateAnimation=False )
-                    self.log_debug("FpsSceneOpened : Maya scene fps was %s, changing it to %s fps" % (mayaSceneFpsName, shotgunProjectFps))
+                    cmds.currentUnit( time=newMayaFps, updateAnimation=False )
+                    self.log_debug("FpsSceneOpened : Maya scene fps was: '%s', changing it to %s fps" % (mayaSceneFpsName, shotgunProjectFps))
 
     
 
 
     ########################## internal methods
 
-    def reverseDict(self, d):
-
-        d2 = {}
-        for k,v in d.items():
-            if v in d2.keys():
-                raise KeyError('Cannot create bidirectional dict. ' +
-                               'Either d has a value that is the same as one of ' +
-                               'its keys or multiple keys have the same value.')
-            d2[v] = k
-        return d2
 
     def convertMayaFpsToShotgunFps(self, fps):
 
-        return self.mayaFpsDict[fps]
+        if fps in self.mayaFpsDict:
+            return self.mayaFpsDict[fps]
+        else : return None
+
 
     def convertShotgunFpsToMayaFps(self, fps):
 
-        shotgunFpsDict = self.reverseDict(self.mayaFpsDict)
-        return shotgunFpsDict[fps]
+        for mayaFpsName, shotgunFps in self.mayaFpsDict.iteritems():
+            if shotgunFps == fps:
+                return mayaFpsName
+        return None
+
 
     def getMayaSceneFps(self):
         return cmds.currentUnit( query=True, time=True )
@@ -126,8 +134,7 @@ class mayaFpsCheck(Application):
         fields = ["sg_projectfps"]
         data = tk.shotgun.find_one('Project', filters=sg_filters, fields=fields)
         try:
-            shotgunProjectFps = data['sg_projectfps'] # this returns none if left unspecified, otherwise returns a float
-            
+            shotgunProjectFps = data['sg_projectfps'] # this returns none if left unspecified, otherwise returns a float 
         except: # if there's no sg_projectfps field
             shotgunProjectFps = None
 
