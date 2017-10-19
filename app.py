@@ -1,6 +1,12 @@
 
 """
-Check frame rate in Maya
+Check frame rate in Maya. This replaces and hopefully improves the fpsWatcher mel script
+This fpsWatcher script is located in :
+//vapps/apps/Maya/sharedScripts/sourcedScripts/utils
+
+The fpsWatcher script is called from the userSetup.mel that resides in :
+//vapps/apps/Maya/sharedScripts/userSetup.mel, line 252.
+
 
 """
 
