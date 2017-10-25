@@ -45,8 +45,10 @@ class mayaFpsCheck(Application):
         """
         App teardown
         """
-        self.log_debug("Destroying maya check fps app, killing scriptJob %s" % self.job)
-        cmds.scriptJob( kill=self.job, force=True)
+        if cmds.scriptJob( exists=self.job ): 
+            cmds.scriptJob( kill=self.job, force=True)
+            self.log_debug("Destroying maya check fps app, killing scriptJob %s" % self.job)
+        else: self.log_debug("Tried to delete scriptJob %s of tk-maya-fps but job does not exist anymore" % self.job)
 
 
 
