@@ -85,7 +85,11 @@ class mayaFpsCheck(Application):
             warnDialog = cmds.confirmDialog(title='Frame Rate Warning', message=warning, button=['ok'])
             return
 
+
         defaultNodes = ['lambert1', 'particleCloud1', 'persp', 'perspShape', 'top', 'topShape', 'front', 'frontShape', 'side', 'sideShape']
+		if cmds.about(version= True) == "2020":
+			defaultNodes = ['lambert1', 'standardSurface1', 'particleCloud1', 'persp', 'perspShape', 'top', 'topShape', 'front', 'frontShape', 'side', 'sideShape']
+
         sceneNodes = cmds.ls(materials = True, dag = True)
 
         if sceneNodes == defaultNodes: # in this case, we are dealing with a new scene (not a perfect solution, but I don't see another way to check)
