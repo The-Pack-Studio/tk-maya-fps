@@ -87,8 +87,8 @@ class mayaFpsCheck(Application):
 
 
         defaultNodes = ['lambert1', 'particleCloud1', 'persp', 'perspShape', 'top', 'topShape', 'front', 'frontShape', 'side', 'sideShape']
-		if cmds.about(version= True) == "2020":
-			defaultNodes = ['lambert1', 'standardSurface1', 'particleCloud1', 'persp', 'perspShape', 'top', 'topShape', 'front', 'frontShape', 'side', 'sideShape']
+        if cmds.about(version= True) == "2020":
+            defaultNodes = ['lambert1', 'standardSurface1', 'particleCloud1', 'persp', 'perspShape', 'top', 'topShape', 'front', 'frontShape', 'side', 'sideShape']
 
         sceneNodes = cmds.ls(materials = True, dag = True)
 
