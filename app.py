@@ -30,6 +30,7 @@ class mayaFpsCheck(Application):
         self.mayaFpsDict = self.get_setting("maya_fps_list")
 
         self.FpsSceneOpened() # run the method when the app is started
+
         self.job = cmds.scriptJob( event=["SceneOpened", self.FpsSceneOpened], protected=True ) # will run if a scene (new or not) is opened
         self.log_debug("Creating protected scriptJob %s " % self.job)
 
@@ -87,7 +88,9 @@ class mayaFpsCheck(Application):
 
 
         defaultNodes = ['lambert1', 'particleCloud1', 'persp', 'perspShape', 'top', 'topShape', 'front', 'frontShape', 'side', 'sideShape']
-        if cmds.about(version= True) == "2020":
+        maya_version = cmds.about(version= True)
+
+        if maya_version == "2020" or maya_version == "2022":
             defaultNodes = ['lambert1', 'standardSurface1', 'particleCloud1', 'persp', 'perspShape', 'top', 'topShape', 'front', 'frontShape', 'side', 'sideShape']
 
         sceneNodes = cmds.ls(materials = True, dag = True)
@@ -128,7 +131,7 @@ class mayaFpsCheck(Application):
 
     def convertShotgunFpsToMayaFps(self, fps):
 
-        for mayaFpsName, shotgunFps in self.mayaFpsDict.iteritems():
+        for mayaFpsName, shotgunFps in self.mayaFpsDict.items():
             if shotgunFps == fps:
                 return mayaFpsName
         return None
