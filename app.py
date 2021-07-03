@@ -98,6 +98,22 @@ class mayaFpsCheck(Application):
         if sceneNodes == defaultNodes: # in this case, we are dealing with a new scene (not a perfect solution, but I don't see another way to check)
             if mayaSceneFps != shotgunProjectFps:
                 cmds.currentUnit( time=newMayaFps, updateAnimation=False )
+
+                # Change the in and out values to round values
+                animationStart = cmds.playbackOptions( q=True, animationStartTime=True )
+                animationEnd = cmds.playbackOptions( q=True, animationEndTime=True )
+                minTime = cmds.playbackOptions( q=True, minTime=True )
+                maxTime = cmds.playbackOptions( q=True, maxTime=True )
+                curtime = cmds.currentTime( q= True )
+
+                cmds.playbackOptions( 
+                    animationStartTime = int(round(animationStart)),
+                    animationEndTime = int(round(animationEnd)),
+                    minTime = int(round(minTime)),
+                    maxTime = int(round(maxTime))
+                        )
+                cmds.currentTime( int(round(curtime)) )
+
                 self.log_debug("New Maya scene fps was: '%s', changing it silently to %s fps to match this shotgun project's fps value" % (mayaSceneFpsName, shotgunProjectFps))
 
         else: # it's not an new empty scene
@@ -114,6 +130,20 @@ class mayaFpsCheck(Application):
                 
                 if userResponse == change:
                     cmds.currentUnit( time=newMayaFps, updateAnimation=False )
+                    # Change the in and out values to round values
+                    animationStart = cmds.playbackOptions( q=True, animationStartTime=True )
+                    animationEnd = cmds.playbackOptions( q=True, animationEndTime=True )
+                    minTime = cmds.playbackOptions( q=True, minTime=True )
+                    maxTime = cmds.playbackOptions( q=True, maxTime=True )
+                    curtime = cmds.currentTime( q= True )
+
+                    cmds.playbackOptions( 
+                        animationStartTime = int(round(animationStart)),
+                        animationEndTime = int(round(animationEnd)),
+                        minTime = int(round(minTime)),
+                        maxTime = int(round(maxTime))
+                            )
+                    cmds.currentTime( int(round(curtime)) )
                     self.log_debug("FpsSceneOpened : Maya scene fps was: '%s', changing it to %s fps" % (mayaSceneFpsName, shotgunProjectFps))
 
     
